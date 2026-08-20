@@ -21,9 +21,9 @@ permettant l'usage hors-ligne du contenu déjà chargé.
 l'implémentation)
 
 **Primary Dependencies**: Flutter SDK (UI cross-platform) ; `supabase_flutter` (client
-Supabase — auth, base de données, storage) ; `drift` ou `sqflite` (cache local SQLite
-pour l'usage hors-ligne) ; `go_router` (navigation/routage écran) ; `flutter_lints`
-(qualité de code)
+Supabase — auth et base de données ; pas d'usage de Storage en V1, voir `data-model.md`
+pour le choix vidéo YouTube) ; `drift` ou `sqflite` (cache local SQLite pour l'usage
+hors-ligne) ; `go_router` (navigation/routage écran) ; `flutter_lints` (qualité de code)
 
 **Storage**: PostgreSQL managé par Supabase (contenu, comptes, historique de progression)
 + cache local SQLite embarqué sur l'appareil pour le contenu déjà consulté et la
@@ -93,9 +93,10 @@ specs/001-exercise-navigation-modes/
 mobile/
 ├── lib/
 │   ├── core/
-│   │   ├── theme/            # thèmes clair/sombre, identité "sport intense x nature organique"
+│   │   ├── theme/            # thèmes clair/sombre + bascule persistée, identité "sport intense x nature organique"
 │   │   ├── router/           # go_router, garde de rôle coach/client
-│   │   └── offline/          # cache local, synchronisation
+│   │   ├── offline/          # cache local, synchronisation
+│   │   └── widgets/          # états loading/error/empty partagés, réutilisés par tous les écrans
 │   ├── features/
 │   │   ├── auth/             # connexion, inscription client, réinitialisation mot de passe
 │   │   ├── daily_formula/    # mode 1 : formule du jour
@@ -114,6 +115,7 @@ mobile/
 backend/
 └── supabase/
     ├── migrations/            # schéma SQL : tables + policies RLS d'isolation multi-coach
+    ├── functions/             # Edge Functions (ex. create-client-account — FR-022b)
     ├── seed/                  # données de démonstration pour le développement local
     └── config.toml            # configuration du projet Supabase local (Supabase CLI)
 ```
@@ -123,7 +125,12 @@ configuration backend-as-a-service versionnée (`backend/supabase/`, migrations 
 RLS). Pas de service API custom séparé à ce stade : Supabase expose directement les
 données au client mobile via des policies RLS scoping chaque requête au coach/client
 authentifié, ce qui couvre FR-017/FR-021 (isolation multi-coach) sans code serveur
-supplémentaire à maintenir.
+supplémentaire à maintenir. Deux exceptions ponctuelles à ce principe "pas de code
+serveur" : une fonction Postgres `redeem_invite_code` et une Edge Function
+`create-client-account` (`backend/supabase/functions/`), nécessaires pour les deux
+parcours de rattachement client-coach (FR-022) sans exposer de privilège d'écriture large
+ni la clé de service au client mobile (Principe V) — voir `data-model.md` et
+`contracts/auth.md`.
 
 ## Complexity Tracking
 

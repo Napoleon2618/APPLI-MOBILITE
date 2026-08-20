@@ -4,16 +4,39 @@ Fournie par Supabase Auth (email + mot de passe classique — FR-019, pas de mag
 Le client mobile appelle directement le SDK `supabase_flutter` ; il n'y a pas d'endpoint
 custom à développer pour ces flux.
 
-## Inscription (client)
+## Inscription (client) — deux parcours (FR-022)
 
-- **Entrée**: email, mot de passe, `coach_id` de rattachement (issu d'une invitation ou
-  d'un code fourni par le coach — mécanisme précis hors périmètre de cette spec,
-  cf. Assumptions)
-- **Comportement attendu**: crée l'identité Supabase Auth puis la ligne `client`
-  correspondante avec le `coach_id` fourni. Le rattachement `coach_id` DOIT être fixé à la
-  création et non modifiable ensuite par le client (FR-021).
+### a) Auto-inscription par code d'invitation
+
+- **Entrée**: email, mot de passe, code d'invitation (`invite_code.code`)
+- **Comportement attendu**: 1) le client crée son identité Supabase Auth via l'appel
+  standard `signUp` (email + mot de passe) ; 2) une fois la session ouverte, l'app appelle
+  la fonction Postgres `redeem_invite_code(code)` (`SECURITY DEFINER`), qui valide le code
+  (existe, `used_at IS NULL`, coach actif), crée la ligne `client` avec le `coach_id` du
+  code, et marque `invite_code.used_at`/`used_by_client_id`. Voir `data-model.md` (entité
+  `invite_code`) pour le détail et la justification de ce détour par une fonction serveur.
 - **Erreurs**: email déjà utilisé ; mot de passe ne respectant pas la politique minimale
-  Supabase ; `coach_id` invalide/inexistant.
+  Supabase ; code invalide, déjà utilisé, ou inexistant (dans ce cas l'identité Auth a été
+  créée mais aucune ligne `client` n'existe — l'app DOIT bloquer l'accès au contenu et
+  proposer de ressaisir un code plutôt que de laisser un compte orphelin utilisable).
+
+### b) Création directe par le coach
+
+- **Entrée** (côté coach, authentifié) : email du client, mot de passe provisoire
+- **Comportement attendu**: le coach appelle la Supabase Edge Function
+  `create-client-account`, qui vérifie que l'appelant est un coach authentifié, crée
+  l'identité Supabase Auth du client (via la clé de service, détenue uniquement côté
+  serveur de la fonction — jamais dans l'app mobile, Principe V) avec le mot de passe
+  provisoire fourni, puis crée la ligne `client` avec `coach_id` égal à celui du coach
+  appelant.
+- **Erreurs**: email déjà utilisé ; appelant non-coach (refusé) ; échec de création côté
+  Auth.
+- Le client ainsi créé se connecte ensuite normalement (email + mot de passe provisoire)
+  et peut le changer via le flux de réinitialisation standard (FR-020) — aucun flux de
+  changement de mot de passe obligatoire au premier login n'est requis par cette spec.
+
+Dans les deux cas, le rattachement `coach_id` DOIT être fixé à la création et non
+modifiable ensuite par le client (FR-021).
 
 ## Connexion
 

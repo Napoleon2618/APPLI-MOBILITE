@@ -29,6 +29,39 @@ Représente un compte client (rôle consultation), rattaché à un unique coach 
 **Relation**: un `client` appartient à exactement un `coach` (Assumptions — pas de
 rattachement à plusieurs coachs dans ce périmètre).
 
+### invite_code (code d'invitation)
+Jeton généré par un coach, permettant à un client de s'inscrire en se rattachant
+automatiquement à ce coach (FR-022, mécanisme a).
+
+| Champ | Type | Règles |
+|---|---|---|
+| id | uuid (PK) | |
+| coach_id | uuid (FK → coach.id) | requis |
+| code | text (unique) | requis, court identifiant à saisir par le client à l'inscription |
+| created_at | timestamptz | requis, défaut now() |
+| used_at | timestamptz | nullable ; renseigné à la première utilisation (usage unique) |
+| used_by_client_id | uuid (FK → client.id) | nullable ; client créé via ce code |
+
+**Note — deux parcours de rattachement (FR-022)**: le rattachement d'un client à un coach
+se fait par l'un des deux mécanismes suivants, tous deux à conserver :
+
+1. **Code d'invitation** : le client crée son propre compte (email + mot de passe, via
+   l'inscription standard Supabase Auth, un appel non authentifié classique), puis, une
+   fois sa session ouverte, appelle une fonction Postgres dédiée (`redeem_invite_code`,
+   `SECURITY DEFINER`) qui valide le code (existe, non utilisé, coach actif), crée la
+   ligne `client` avec le `coach_id` du code, et marque le code utilisé. Ce détour par une
+   fonction serveur (plutôt qu'un `INSERT` direct sur `client`) est nécessaire pour valider
+   le code de façon fiable sans exposer aux clients la possibilité d'écrire un `coach_id`
+   arbitraire.
+2. **Création directe par le coach** : un coach ne peut pas créer un autre compte
+   utilisateur Supabase Auth depuis l'application mobile (cela nécessite la clé de service
+   Supabase, qui ne doit jamais être embarquée dans l'app — Principe V). Ce parcours passe
+   donc par une Supabase Edge Function serveur (`create-client-account`), qui vérifie que
+   l'appelant authentifié est bien un coach, crée le compte Auth du client avec un mot de
+   passe provisoire fourni par le coach, puis crée la ligne `client` avec `coach_id`
+   directement égal à celui du coach appelant. La clé de service reste uniquement dans
+   l'environnement serveur de la fonction, jamais dans le client mobile.
+
 ### body_zone (zone corporelle)
 Catégorie de localisation anatomique définie par un coach (ex. dos, épaules, hanches).
 
@@ -63,8 +96,21 @@ Unité de contenu de mobilité/assouplissement créée par un coach.
 | instructions | text | requis (déroulé d'exécution) |
 | youtube_video_url | text | optionnel ; URL d'une vidéo YouTube hébergée sur YouTube (pas
 de fichier vidéo stocké dans Supabase Storage — voir note ci-dessous) |
+| archived_at | timestamptz | nullable ; renseigné quand le coach "supprime" un exercice
+déjà référencé par un historique de progression (FR-023) — voir note ci-dessous |
 | created_at | timestamptz | requis, défaut now() |
 | updated_at | timestamptz | requis, défaut now(), mis à jour à chaque modification |
+
+**Note — suppression = archivage conditionnel (FR-023)**: quand un coach supprime un
+exercice, le système vérifie s'il est référencé par au moins une ligne `session_log` (via
+`session_exercise` de la séance suivie). S'il ne l'est pas, la suppression est une
+suppression définitive classique (`DELETE`). S'il l'est, la suppression pose
+`archived_at = now()` au lieu d'un `DELETE` (pas de suppression physique, pas de cascade
+destructive sur `session_log`/`session_exercise`/`exercise_body_zone`/
+`exercise_pain_sign`). Un exercice archivé DOIT être exclu de toutes les listes actives
+(zones, signes, création/édition de séance, formule du jour, les trois modes de
+navigation client) mais reste lisible depuis l'historique de progression d'un client qui
+l'a suivi.
 
 **Note — hébergement vidéo**: la démonstration vidéo d'un exercice est hébergée sur
 YouTube ; seule l'URL est stockée côté application (`youtube_video_url`), lue par un
@@ -143,6 +189,7 @@ de navigation ayant conduit à cette séance suivie, utile pour analyse produit 
 
 ```text
 coach 1───N client
+coach 1───N invite_code
 coach 1───N body_zone
 coach 1───N pain_sign
 coach 1───N exercise
@@ -156,6 +203,7 @@ daily_formula N───1 session
 
 client 1───N session_log
 session 1───N session_log
+invite_code 0───1 client   (used_by_client_id, une fois utilisé)
 ```
 
 ## Règles de validation issues des exigences
@@ -170,10 +218,20 @@ session 1───N session_log
 - Une tentative de recherche par `body_zone` ou `pain_sign` sans exercice associé DOIT
   renvoyer un résultat vide explicite (pas d'erreur) pour permettre l'état "message clair"
   requis par FR-015/US3/US4.
+- Toute lecture d'`exercise` dans un contexte de liste active (zones, signes, création de
+  séance, formule du jour, navigation client) DOIT exclure les lignes où
+  `archived_at IS NOT NULL` (FR-023).
+- Un code d'`invite_code` DOIT être rejeté par `redeem_invite_code` s'il est déjà utilisé
+  (`used_at IS NOT NULL`) ou inexistant.
 
 ## État / transitions
 
-Ce domaine n'a pas de machine à états complexe : les entités de contenu (exercise,
-session, body_zone, pain_sign) suivent un cycle de vie CRUD simple (créé → modifié →
-éventuellement supprimé) piloté par le coach. `session_log` est en écriture seule après
-création (une séance suivie n'est pas modifiée rétroactivement).
+Les entités de contenu (session, body_zone, pain_sign) suivent un cycle de vie CRUD simple
+(créé → modifié → supprimé) piloté par le coach, sans machine à états. `exercise` a un
+état supplémentaire lié à sa suppression : actif (`archived_at IS NULL`) → soit supprimé
+définitivement (si non référencé par un historique), soit archivé (`archived_at` renseigné,
+si référencé) — l'archivage est terminal, un exercice archivé n'est pas
+désarchivable dans le périmètre de cette spécification. `session_log` est en écriture
+seule après création (une séance suivie n'est pas modifiée rétroactivement). `invite_code`
+passe de non-utilisé (`used_at IS NULL`) à utilisé (`used_at` renseigné) une seule fois,
+de façon irréversible.

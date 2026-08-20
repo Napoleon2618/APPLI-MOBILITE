@@ -34,6 +34,12 @@ que de dupliquer leur contenu.
 6. **Attendu**: le client du premier coach ne voit à aucun moment le contenu du second
    coach, dans aucun des trois modes de navigation (vérifie les policies RLS de
    `contracts/data-access.md`).
+7. Faire suivre au client de seed la séance créée à l'étape 2-3 (produit un `session_log`),
+   puis, en tant que coach, supprimer l'exercice qui y figure (FR-023).
+8. **Attendu**: l'exercice disparaît des listes actives du coach et des trois modes de
+   navigation client, mais reste visible/consultable dans l'historique de progression du
+   client pour la séance déjà suivie (pas de suppression physique — `archived_at` posé,
+   cf. `data-model.md`).
 
 ## Scénario 3 — Choix par zone corporelle (US3)
 
@@ -65,6 +71,22 @@ que de dupliquer leur contenu.
 4. **Attendu**: email de réinitialisation reçu (boîte de test Supabase locale/Inbucket),
    lien fonctionnel menant à un écran de nouveau mot de passe, reconnexion possible avec
    le nouveau mot de passe.
+5. Sur un second appareil/émulateur (ou après désinstallation/réinstallation), se
+   connecter avec le compte client de seed qui a déjà des séances suivies.
+6. **Attendu**: l'historique de progression (séances suivies, régularité) est identique à
+   celui vu sur le premier appareil, sans étape de resynchronisation manuelle (FR-018).
+
+## Scénario 6bis — Rattachement client-coach (FR-022)
+
+1. En tant que coach, générer un code d'invitation.
+2. Sur un nouvel appareil/session, s'inscrire avec un nouvel email + mot de passe en
+   saisissant ce code.
+3. **Attendu**: le nouveau compte client est automatiquement rattaché à ce coach et voit
+   son contenu (le code ne peut pas être réutilisé une seconde fois).
+4. En tant que coach, créer directement un second compte client (email + mot de passe
+   provisoire), sans code.
+5. **Attendu**: ce client peut se connecter avec le mot de passe provisoire et voit
+   immédiatement le contenu de ce coach.
 
 ## Scénario 7 — Mode hors-ligne (Principe IV)
 

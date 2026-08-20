@@ -18,14 +18,29 @@ custom : elles définissent ce que chaque rôle authentifié peut lire ou écrir
   (ses propres clients uniquement) ; écriture limitée aux champs de gestion de compte
   pertinents (pas de changement de `coach_id` après création — FR-021).
 
+### invite_code
+- **Lecture/Écriture (INSERT)** : un coach authentifié peut créer et lire ses propres
+  codes (`coach_id = auth.uid()`) uniquement.
+- Aucun accès direct en lecture/écriture pour un client authentifié ou un utilisateur non
+  authentifié : la validation/consommation d'un code passe exclusivement par la fonction
+  `redeem_invite_code` (`SECURITY DEFINER`, voir `data-model.md` et `auth.md`), jamais par
+  un `SELECT`/`UPDATE` direct sur la table.
+
 ### body_zone, pain_sign, exercise, session, daily_formula
 Pour chacune de ces tables (toutes portant `coach_id`) :
 - **Lecture (SELECT)** : autorisée si `coach_id = auth.uid()` (coach propriétaire) OU
   `coach_id = (SELECT coach_id FROM client WHERE id = auth.uid())` (client rattaché à ce
-  coach). Couvre FR-021 (isolation multi-coach côté client) et US2 scénario 5.
+  coach). Couvre FR-021 (isolation multi-coach côté client) et US2 scénario 5. Pour
+  `exercise` spécifiquement, toute lecture dans un contexte de liste active DOIT en outre
+  filtrer `archived_at IS NULL` (FR-023) — seule une consultation d'historique
+  (`session_log` → `session_exercise` → `exercise`) peut renvoyer un exercice archivé.
 - **Écriture (INSERT/UPDATE/DELETE)** : autorisée uniquement si `coach_id = auth.uid()`
   ET l'utilisateur authentifié a le rôle coach. Couvre FR-010 (un client ne peut pas
-  accéder aux fonctions de gestion de contenu).
+  accéder aux fonctions de gestion de contenu). Pour `exercise` spécifiquement, un
+  `DELETE` initié par le coach DOIT être intercepté côté application (ou par un trigger) :
+  s'il existe une ligne `session_log` référençant cet exercice via `session_exercise`, le
+  `DELETE` est remplacé par un `UPDATE ... SET archived_at = now()` (FR-023) plutôt
+  qu'exécuté tel quel.
 
 ### exercise_body_zone, exercise_pain_sign, session_exercise (tables d'association)
 - Mêmes règles que ci-dessus, appliquées via jointure sur le `coach_id` de l'entité
