@@ -61,9 +61,21 @@ Unité de contenu de mobilité/assouplissement créée par un coach.
 | name | text | requis |
 | description | text | requis |
 | instructions | text | requis (déroulé d'exécution) |
-| media_url | text | optionnel (image/vidéo dans Supabase Storage) |
+| youtube_video_url | text | optionnel ; URL d'une vidéo YouTube hébergée sur YouTube (pas
+de fichier vidéo stocké dans Supabase Storage — voir note ci-dessous) |
 | created_at | timestamptz | requis, défaut now() |
 | updated_at | timestamptz | requis, défaut now(), mis à jour à chaque modification |
+
+**Note — hébergement vidéo**: la démonstration vidéo d'un exercice est hébergée sur
+YouTube ; seule l'URL est stockée côté application (`youtube_video_url`), lue par un
+lecteur/embed YouTube côté client. Aucun fichier vidéo n'est téléversé dans Supabase
+Storage pour ce champ (Storage reste disponible pour d'éventuels autres médias, ex.
+images, mais n'est plus dans le périmètre du contenu vidéo d'exercice). Ce choix évite
+les coûts de stockage/bande passante vidéo et la mise en place d'un pipeline
+d'encodage/streaming, au prix d'une dépendance à la disponibilité de YouTube et à une
+connexion réseau active pour la lecture (la vidéo elle-même n'est donc pas disponible
+hors-ligne, contrairement au texte de `instructions`, qui reste consultable via le cache
+local — cf. Principe IV).
 
 ### exercise_body_zone (association N↔N)
 | Champ | Type | Règles |

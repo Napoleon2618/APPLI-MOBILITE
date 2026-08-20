@@ -27,8 +27,9 @@ pour l'usage hors-ligne) ; `go_router` (navigation/routage écran) ; `flutter_li
 
 **Storage**: PostgreSQL managé par Supabase (contenu, comptes, historique de progression)
 + cache local SQLite embarqué sur l'appareil pour le contenu déjà consulté et la
-progression enregistrée hors-ligne, synchronisés dès le retour du réseau ; Supabase
-Storage pour les médias d'exercice (images/vidéos d'instruction)
+progression enregistrée hors-ligne, synchronisés dès le retour du réseau ; les vidéos de
+démonstration des exercices sont hébergées sur YouTube (champ `youtube_video_url`, pas de
+fichier vidéo dans Supabase Storage — voir `data-model.md`)
 
 **Testing**: `flutter_test` (tests unitaires et de widgets) ; `integration_test`
 (parcours de bout en bout sur device/émulateur) ; tests des policies Row Level Security

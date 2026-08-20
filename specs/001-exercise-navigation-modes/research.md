@@ -27,7 +27,9 @@ hors-ligne (Principe IV) est également mature dans l'écosystème Flutter (SQLi
 
 ## 2. Backend & authentification
 
-**Decision**: Supabase (PostgreSQL managé + Auth + Storage) comme backend-as-a-service.
+**Decision**: Supabase (PostgreSQL managé + Auth) comme backend-as-a-service. Les vidéos
+de démonstration des exercices sont hébergées sur YouTube (URL stockée en base) plutôt
+que dans Supabase Storage — décision détaillée dans `data-model.md` (entité `exercise`).
 
 **Rationale**: Le besoin (comptes coach/client avec mot de passe + réinitialisation par
 email, données relationnelles multi-coach avec relations plusieurs-à-plusieurs
@@ -36,7 +38,7 @@ bien couvert par une base relationnelle avec authentification intégrée. Supaba
 Auth email/mot de passe avec flux de réinitialisation par email prêt à l'emploi (couvre
 FR-019/FR-020 sans développement custom), PostgreSQL avec Row Level Security pour
 l'isolation par coach (FR-017/FR-021) directement au niveau des policies plutôt qu'en
-code applicatif, et un Storage pour les médias d'exercice. Cela évite de construire et
+code applicatif. Cela évite de construire et
 d'opérer un service API custom pour une V1 à périmètre encore modeste (Principe I —
 ne pas complexifier au-delà du nécessaire).
 
