@@ -40,6 +40,7 @@ Le coach crée et organise les exercices, les séances, les associations zone/si
 2. **Given** un exercice existant, **When** le coach l'associe à une ou plusieurs zones corporelles et à un ou plusieurs signes de douleur, **Then** ces associations sont enregistrées et utilisées par les modes de navigation 2 et 3 côté client.
 3. **Given** une séance existante, **When** le coach la désigne comme formule du jour pour une date donnée, **Then** cette séance est celle proposée aux clients à cette date via le mode "Formule journalière".
 4. **Given** un client connecté (rôle consultation), **When** il tente d'accéder à un écran de création ou modification de contenu, **Then** l'accès lui est refusé.
+5. **Given** deux coachs distincts ayant chacun créé leur propre contenu, **When** un client rattaché au coach A consulte l'application, **Then** il ne voit que le contenu du coach A (exercices, séances, formule du jour, zones, signes de douleur), jamais celui d'un autre coach.
 
 ---
 
@@ -119,19 +120,23 @@ Un client veut voir qu'il progresse dans le temps : les séances suivies et sa r
 - **FR-015**: Le système DOIT afficher un état explicite (message clair) lorsqu'un mode de navigation (formule du jour, zone corporelle, signe de douleur) ne peut renvoyer aucun contenu, plutôt que de laisser un écran vide.
 
 - **FR-016**: Le client DOIT indiquer son signe de douleur en sélectionnant une formulation dans une liste prédéfinie de signes courants, non médicaux, gérée par le coach — pas de saisie libre en texte.
-- **FR-017**: Le contenu (exercices, séances, associations zone/signe, formule du jour) DOIT être géré par un unique coach et DOIT être visible par l'ensemble des clients de l'application (modèle mono-coach/cabinet ; pas de contenu séparé par coach).
-- **FR-018**: Un client DOIT disposer d'un compte utilisateur avec identifiants pour accéder à l'application ; son historique de progression DOIT être associé à ce compte et rester accessible depuis un nouvel appareil après connexion.
+- **FR-017**: Le système DOIT être conçu pour supporter plusieurs coachs distincts dès la conception des données, chacun avec son propre contenu (exercices, séances, associations zone/signe, formule du jour) non partagé par défaut avec les autres coachs. Un seul coach sera opérationnellement actif en V1, mais le modèle de données NE DOIT PAS nécessiter de refonte pour qu'un second coach rejoigne l'application par la suite.
+- **FR-018**: Un client DOIT disposer d'un compte utilisateur pour accéder à l'application ; son historique de progression DOIT être associé à ce compte et rester accessible depuis un nouvel appareil après connexion.
+- **FR-019**: Le système DOIT authentifier les comptes utilisateur (coach comme client) via un identifiant (email) et un mot de passe classique — pas de lien de connexion sans mot de passe ("magic link") en V1.
+- **FR-020**: Le système DOIT permettre à un utilisateur ayant oublié son mot de passe de le réinitialiser via un lien de réinitialisation envoyé par email.
+- **FR-021**: Le système DOIT rattacher chaque client à un unique coach, et DOIT limiter le contenu visible par ce client (exercices, séances, formule du jour, zones corporelles, signes de douleur) à celui créé par son coach.
 
 ### Key Entities
 
-- **Exercice**: Unité de contenu de mobilité/assouplissement créée par un coach (nom, description, instructions d'exécution). Peut être associé à plusieurs zones corporelles et plusieurs signes de douleur, et peut appartenir à plusieurs séances.
-- **Séance**: Ensemble ordonné d'exercices, créé par un coach. Peut être désignée comme formule du jour pour une ou plusieurs dates.
-- **Formule du jour**: Association entre une date et une séance, déterminant ce qui est proposé aux clients dans le mode "Formule journalière" pour cette date.
-- **Zone corporelle**: Catégorie de localisation anatomique (ex. dos, épaules, hanches, genoux, chevilles) utilisée pour cibler des exercices dans le mode "Choix par zone corporelle".
-- **Signe de douleur**: Formulation en langage courant décrivant une gêne ou douleur (ex. "douleur au coude", "tiraillement dans le bas du dos"), définie et gérée par le coach dans une liste prédéfinie, utilisée pour cibler des exercices dans le mode "Choix par signe de douleur".
-- **Séance suivie (historique)**: Enregistrement qu'un client donné a suivi une séance donnée à une date donnée, utilisé pour calculer la progression et la régularité.
-- **Compte utilisateur**: Identité authentifiée d'un coach ou d'un client, associée à son rôle et, pour un client, à son historique de progression (retrouvable après connexion depuis un nouvel appareil).
-- **Utilisateur**: Personne utilisant l'application, avec un rôle coach (gestion de contenu) ou client (consultation et suivi).
+- **Coach**: Compte au rôle admin/contenu, propriétaire d'un espace de contenu qui lui est propre (exercices, séances, zones corporelles éventuellement personnalisées, signes de douleur, formule du jour). Plusieurs coachs peuvent coexister dans le système ; leurs contenus respectifs ne sont pas partagés entre eux. Un seul coach est opérationnellement actif en V1.
+- **Exercice**: Unité de contenu de mobilité/assouplissement créée par un coach donné et rattachée à celui-ci (nom, description, instructions d'exécution). Peut être associé à plusieurs zones corporelles et plusieurs signes de douleur du même coach, et peut appartenir à plusieurs séances du même coach.
+- **Séance**: Ensemble ordonné d'exercices, créé par un coach et rattaché à celui-ci. Peut être désignée comme formule du jour pour une ou plusieurs dates.
+- **Formule du jour**: Association entre une date et une séance d'un coach donné, déterminant ce qui est proposé aux clients de ce coach dans le mode "Formule journalière" pour cette date.
+- **Zone corporelle**: Catégorie de localisation anatomique (ex. dos, épaules, hanches, genoux, chevilles), rattachée à un coach, utilisée pour cibler des exercices dans le mode "Choix par zone corporelle".
+- **Signe de douleur**: Formulation en langage courant décrivant une gêne ou douleur (ex. "douleur au coude", "tiraillement dans le bas du dos"), définie et gérée par un coach dans une liste prédéfinie qui lui est propre, utilisée pour cibler des exercices dans le mode "Choix par signe de douleur".
+- **Séance suivie (historique)**: Enregistrement qu'un client donné a suivi une séance donnée (de son coach) à une date donnée, utilisé pour calculer la progression et la régularité.
+- **Compte utilisateur**: Identité authentifiée (email + mot de passe) d'un coach ou d'un client, associée à son rôle. Pour un client, associée aussi à son coach unique et à son historique de progression (retrouvable après connexion depuis un nouvel appareil). Supporte la réinitialisation de mot de passe par email.
+- **Utilisateur**: Personne utilisant l'application, avec un rôle coach (gestion de contenu propre à ce coach) ou client (consultation et suivi du contenu d'un unique coach rattaché).
 
 ## Success Criteria *(mandatory)*
 
@@ -143,6 +148,7 @@ Un client veut voir qu'il progresse dans le temps : les séances suivies et sa r
 - **SC-004**: Un client peut consulter son nombre de séances suivies et un indicateur de régularité en un seul écran, sans navigation supplémentaire.
 - **SC-005**: Aucun terme médical/clinique n'apparaît dans les libellés du parcours "Choix par signe de douleur", vérifié par relecture du contenu proposé aux clients.
 - **SC-006**: Un utilisateur peut basculer entre mode clair et mode sombre en une seule action, et ce choix est conservé lors des ouvertures suivantes de l'application.
+- **SC-007**: Un utilisateur ayant oublié son mot de passe peut en demander la réinitialisation et retrouver l'accès à son compte via l'email reçu, sans intervention manuelle du coach ou d'un support.
 
 ## Assumptions
 
@@ -152,3 +158,6 @@ Un client veut voir qu'il progresse dans le temps : les séances suivies et sa r
 - La formule du jour est définie par le coach à l'avance (elle n'est pas générée automatiquement par un algorithme de recommandation dans le périmètre de cette spécification) ; comment le coach la programme précisément (ex. calendrier manuel ou rotation) reste un détail de gestion de contenu ouvert.
 - Le mode clair/sombre et l'identité visuelle "sport intense" x "nature organique" s'appliquent uniformément à travers les trois modes de navigation, l'espace coach et l'espace client.
 - La gamification modérée se limite à un décompte de séances et un indicateur de régularité (ex. série de jours) ; aucun système de points, niveaux ou classement entre clients n'est dans le périmètre de cette spécification, sauf demande contraire.
+- Un client est rattaché à un unique coach (pas d'abonnement d'un même client à plusieurs coachs dans le périmètre de cette spécification) ; le mécanisme précis de rattachement (ex. invitation par le coach, code d'accès) reste un détail de gestion de compte ouvert.
+- En V1, un seul coach est réellement créé et opérationnel ; le support de plusieurs coachs est une exigence de conception des données (FR-017) pour éviter une refonte future, pas une fonctionnalité de gestion multi-coach (ex. back-office de supervision inter-coachs) livrée dès cette itération.
+- L'authentification par email + mot de passe (avec réinitialisation par email) s'applique aux comptes coach comme aux comptes client ; l'inscription initiale d'un coach (ex. création manuelle, validation) reste un détail d'implémentation ouvert.

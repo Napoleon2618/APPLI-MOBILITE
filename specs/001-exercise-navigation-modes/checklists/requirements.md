@@ -34,4 +34,8 @@
 - All items pass. The 3 clarification questions raised during drafting (mécanisme de
   sélection du signe de douleur, modèle mono/multi-coach, authentification client) were
   answered by the user and encoded into FR-016, FR-017, FR-018 and the related sections.
+- Amended 2026-08-20: organisation model switched from mono-coach to multi-coach-ready
+  (FR-017, FR-021, Coach entity, US2 scenario 5); client authentication clarified as
+  email + classic password with email-based password reset, no magic link (FR-019,
+  FR-020, SC-007).
 - Spec is ready for `/speckit-clarify` (optional, further de-risking) or `/speckit-plan`.
