@@ -39,12 +39,12 @@ old T-numbers from earlier discussion.
 **Purpose**: Project initialization for the Flutter app and the Supabase backend config,
 plus a minimal CI gate active from the first commit.
 
-- [ ] T001 Create project structure per `plan.md` (`mobile/`, `backend/supabase/`) at the repository root
-- [ ] T002 [P] Initialize the Flutter project in `mobile/` with dependencies: `supabase_flutter`, `drift`, `sqflite`, `go_router`, `flutter_lints` (`mobile/pubspec.yaml`)
-- [ ] T003 [P] Initialize the local Supabase project in `backend/supabase/` (`supabase init`, `backend/supabase/config.toml`)
-- [ ] T004 [P] Configure lint/format rules in `mobile/analysis_options.yaml` (Principle I — code quality gate)
-- [ ] T005 [P] Set up environment configuration for the Supabase URL/anon key in `mobile/lib/core/config/env.dart` and `mobile/.env.example`, ensuring no secret is committed (Principle V)
-- [ ] T006 [P] Wire a minimal CI gate running `flutter analyze` and `flutter test` on every push, in `.github/workflows/ci.yml`, so the constitution's "automated checks MUST pass in CI before merge" gate (Development Workflow & Quality Gates) is active from the first PR, not deferred to Polish
+- [X] T001 Create project structure per `plan.md` (`mobile/`, `backend/supabase/`) at the repository root
+- [X] T002 [P] Initialize the Flutter project in `mobile/` with dependencies: `supabase_flutter`, `drift`, `sqflite`, `go_router`, `flutter_lints` (`mobile/pubspec.yaml`)
+- [X] T003 [P] Initialize the local Supabase project in `backend/supabase/` (`supabase init`, `backend/supabase/config.toml`)
+- [X] T004 [P] Configure lint/format rules in `mobile/analysis_options.yaml` (Principle I — code quality gate)
+- [X] T005 [P] Set up environment configuration for the Supabase URL/anon key in `mobile/lib/core/config/env.dart` and `mobile/.env.example`, ensuring no secret is committed (Principle V)
+- [X] T006 [P] Wire a minimal CI gate running `flutter analyze` and `flutter test` on every push, in `.github/workflows/ci.yml`, so the constitution's "automated checks MUST pass in CI before merge" gate (Development Workflow & Quality Gates) is active from the first PR, not deferred to Polish
 
 **Checkpoint**: Project scaffolding exists, builds, and is covered by a CI gate; ready for
 Foundational work.
@@ -59,67 +59,67 @@ UI-state widgets, theming, routing and offline cache that every user story depen
 
 ### Schema
 
-- [ ] T007 Create migration for `coach` table in `backend/supabase/migrations/0001_coach.sql` (per `data-model.md`)
-- [ ] T008 Create migration for `client` table (FK `coach_id`) in `backend/supabase/migrations/0002_client.sql`
-- [ ] T009 [P] Create migration for `body_zone` table in `backend/supabase/migrations/0003_body_zone.sql`
-- [ ] T010 [P] Create migration for `pain_sign` table in `backend/supabase/migrations/0004_pain_sign.sql`
-- [ ] T011 Create migration for `exercise` table, including `youtube_video_url` and `archived_at` (FR-023 archive policy), in `backend/supabase/migrations/0005_exercise.sql`
-- [ ] T012 [P] Create migration for `exercise_body_zone` association table in `backend/supabase/migrations/0006_exercise_body_zone.sql`
-- [ ] T013 [P] Create migration for `exercise_pain_sign` association table in `backend/supabase/migrations/0007_exercise_pain_sign.sql`
-- [ ] T014 Create migration for `session` table in `backend/supabase/migrations/0008_session.sql`
-- [ ] T015 Create migration for `session_exercise` association table (with `position`) in `backend/supabase/migrations/0009_session_exercise.sql`
-- [ ] T016 Create migration for `daily_formula` table (unique `coach_id`+`date`) in `backend/supabase/migrations/0010_daily_formula.sql`
-- [ ] T017 Create migration for `session_log` table in `backend/supabase/migrations/0011_session_log.sql`
-- [ ] T018 [P] Create migration for `invite_code` table (FR-022) in `backend/supabase/migrations/0012_invite_code.sql`
+- [X] T007 Create migration for `coach` table in `backend/supabase/migrations/0001_coach.sql` (per `data-model.md`)
+- [X] T008 Create migration for `client` table (FK `coach_id`) in `backend/supabase/migrations/0002_client.sql`
+- [X] T009 [P] Create migration for `body_zone` table in `backend/supabase/migrations/0003_body_zone.sql`
+- [X] T010 [P] Create migration for `pain_sign` table in `backend/supabase/migrations/0004_pain_sign.sql`
+- [X] T011 Create migration for `exercise` table, including `youtube_video_url` and `archived_at` (FR-023 archive policy), in `backend/supabase/migrations/0005_exercise.sql`
+- [X] T012 [P] Create migration for `exercise_body_zone` association table in `backend/supabase/migrations/0006_exercise_body_zone.sql`
+- [X] T013 [P] Create migration for `exercise_pain_sign` association table in `backend/supabase/migrations/0007_exercise_pain_sign.sql`
+- [X] T014 Create migration for `session` table in `backend/supabase/migrations/0008_session.sql`
+- [X] T015 Create migration for `session_exercise` association table (with `position`) in `backend/supabase/migrations/0009_session_exercise.sql`
+- [X] T016 Create migration for `daily_formula` table (unique `coach_id`+`date`) in `backend/supabase/migrations/0010_daily_formula.sql`
+- [X] T017 Create migration for `session_log` table in `backend/supabase/migrations/0011_session_log.sql`
+- [X] T018 [P] Create migration for `invite_code` table (FR-022) in `backend/supabase/migrations/0012_invite_code.sql`
 
 ### Row Level Security
 
-- [ ] T019 Write RLS policies for `coach`/`client` tables in `backend/supabase/migrations/0013_rls_coach_client.sql` (per `contracts/data-access.md`)
-- [ ] T020 Write RLS policies for content tables (`body_zone`, `pain_sign`, `exercise`, `session`, `daily_formula`) in `backend/supabase/migrations/0014_rls_content.sql`, including the `archived_at IS NULL` filter on `exercise` for active-list reads (FR-023)
-- [ ] T021 Write RLS policies and same-coach consistency checks for association tables in `backend/supabase/migrations/0015_rls_associations.sql`
-- [ ] T022 Write RLS policies for `session_log` in `backend/supabase/migrations/0016_rls_session_log.sql`
-- [ ] T023 [P] Write RLS policies for `invite_code` (coach reads/inserts own codes only, no client/anon access) in `backend/supabase/migrations/0017_rls_invite_code.sql` (FR-022)
+- [X] T019 Write RLS policies for `coach`/`client` tables in `backend/supabase/migrations/0013_rls_coach_client.sql` (per `contracts/data-access.md`)
+- [X] T020 Write RLS policies for content tables (`body_zone`, `pain_sign`, `exercise`, `session`, `daily_formula`) in `backend/supabase/migrations/0014_rls_content.sql`, including the `archived_at IS NULL` filter on `exercise` for active-list reads (FR-023)
+- [X] T021 Write RLS policies and same-coach consistency checks for association tables in `backend/supabase/migrations/0015_rls_associations.sql`
+- [X] T022 Write RLS policies for `session_log` in `backend/supabase/migrations/0016_rls_session_log.sql`
+- [X] T023 [P] Write RLS policies for `invite_code` (coach reads/inserts own codes only, no client/anon access) in `backend/supabase/migrations/0017_rls_invite_code.sql` (FR-022)
 
 ### Server-side account provisioning (FR-022)
 
-- [ ] T024 Write the `redeem_invite_code(code)` Postgres function (`SECURITY DEFINER`) validating and consuming an invite code, then creating the `client` row, in `backend/supabase/migrations/0018_fn_redeem_invite_code.sql`
-- [ ] T025 Write the `create-client-account` Supabase Edge Function (verifies caller is a coach, creates the client's Auth identity with a provisional password via the service-role key held only server-side, then the `client` row) in `backend/supabase/functions/create-client-account/index.ts`
+- [X] T024 Write the `redeem_invite_code(code)` Postgres function (`SECURITY DEFINER`) validating and consuming an invite code, then creating the `client` row, in `backend/supabase/migrations/0018_fn_redeem_invite_code.sql`
+- [X] T025 Write the `create-client-account` Supabase Edge Function (verifies caller is a coach, creates the client's Auth identity with a provisional password via the service-role key held only server-side, then the `client` row) in `backend/supabase/functions/create-client-account/index.ts`
 
 ### Tests, seed & config
 
-- [ ] T026 [P] Write RLS isolation test scenarios in `backend/supabase/tests/rls_isolation_test.sql` (multi-coach isolation, per `contracts/data-access.md`)
-- [ ] T027 [P] Write local-dev seed data in `backend/supabase/seed/seed.sql` (a coach, an invite code, one client provisioned via invite-code redemption and one via direct coach creation, zones, signs, exercises, session, daily formula — per `quickstart.md` prerequisites)
-- [ ] T028 Configure the Supabase Auth password-reset email template in `backend/supabase/config.toml` / `backend/supabase/templates/recovery.html` (FR-020)
+- [X] T026 [P] Write RLS isolation test scenarios in `backend/supabase/tests/rls_isolation_test.sql` (multi-coach isolation, per `contracts/data-access.md`)
+- [X] T027 [P] Write local-dev seed data in `backend/supabase/seed/seed.sql` (a coach, an invite code, one client provisioned via invite-code redemption and one via direct coach creation, zones, signs, exercises, session, daily formula — per `quickstart.md` prerequisites)
+- [X] T028 Configure the Supabase Auth password-reset email template in `backend/supabase/config.toml` / `backend/supabase/templates/recovery.html` (FR-020)
 
 ### App shell
 
-- [ ] T029 Wire the Flutter app entrypoint and Supabase client initialization in `mobile/lib/main.dart`
-- [ ] T030 [P] Build shared loading/error-state widgets (e.g. `AsyncStateView`) in `mobile/lib/core/widgets/async_state_view.dart`, meant to be reused by every screen built in later phases (Principle III — every user-facing screen MUST handle loading/error/empty states explicitly)
-- [ ] T031 [P] Implement theme tokens for light/dark mode and the "sport intense x nature organique" identity in `mobile/lib/core/theme/app_theme.dart` (FR-011, FR-012)
-- [ ] T032 Build the light/dark theme toggle control and persist the user's choice locally (e.g. `shared_preferences`) in `mobile/lib/core/theme/theme_controller.dart` (FR-011, SC-006)
-- [ ] T033 [P] Implement the local SQLite cache schema (drift) in `mobile/lib/core/offline/local_database.dart` (Principle IV)
-- [ ] T034 [P] Implement the offline sync queue for deferred writes (e.g. session completions) in `mobile/lib/core/offline/sync_queue.dart`
-- [ ] T035 Implement auth session state (current user, role, coach_id) in `mobile/lib/features/auth/auth_state.dart`
+- [X] T029 Wire the Flutter app entrypoint and Supabase client initialization in `mobile/lib/main.dart`
+- [X] T030 [P] Build shared loading/error-state widgets (e.g. `AsyncStateView`) in `mobile/lib/core/widgets/async_state_view.dart`, meant to be reused by every screen built in later phases (Principle III — every user-facing screen MUST handle loading/error/empty states explicitly)
+- [X] T031 [P] Implement theme tokens for light/dark mode and the "sport intense x nature organique" identity in `mobile/lib/core/theme/app_theme.dart` (FR-011, FR-012)
+- [X] T032 Build the light/dark theme toggle control and persist the user's choice locally (e.g. `shared_preferences`) in `mobile/lib/core/theme/theme_controller.dart` (FR-011, SC-006)
+- [X] T033 [P] Implement the local SQLite cache schema (drift) in `mobile/lib/core/offline/local_database.dart` (Principle IV)
+- [X] T034 [P] Implement the offline sync queue for deferred writes (e.g. session completions) in `mobile/lib/core/offline/sync_queue.dart`
+- [X] T035 Implement auth session state (current user, role, coach_id) in `mobile/lib/features/auth/auth_state.dart`
 
 ### Auth & provisioning — tests first
 
-- [ ] T036 [P] Widget test: unauthenticated user is routed to the login screen, in `mobile/test/widget/auth_routing_test.dart`
-- [ ] T037 [P] Integration test: login, wrong-password error, password-reset flow, and progress retrieval on a new device after login (quickstart Scenario 6, incl. FR-018) in `mobile/test/integration/auth_flow_test.dart`
-- [ ] T038 [P] Integration test: client signup via coach invite code, and coach-direct client account creation with provisional password (quickstart Scenario 6bis, FR-022) in `mobile/test/integration/coach_client_provisioning_test.dart`
+- [X] T036 [P] Widget test: unauthenticated user is routed to the login screen, in `mobile/test/widget/auth_routing_test.dart`
+- [X] T037 [P] Integration test: login, wrong-password error, password-reset flow, and progress retrieval on a new device after login (quickstart Scenario 6, incl. FR-018) in `mobile/test/integration/auth_flow_test.dart`
+- [X] T038 [P] Integration test: client signup via coach invite code, and coach-direct client account creation with provisional password (quickstart Scenario 6bis, FR-022) in `mobile/test/integration/coach_client_provisioning_test.dart`
 
 ### Auth & provisioning — screens
 
-- [ ] T039 Build the login screen (email + password) in `mobile/lib/features/auth/login_screen.dart` (FR-019)
-- [ ] T040 [P] Build the client signup screen — invite-code entry and redemption (FR-022a) in `mobile/lib/features/auth/signup_screen.dart`
-- [ ] T041 [P] Build the forgot/reset-password screens in `mobile/lib/features/auth/reset_password_screen.dart` (FR-020)
-- [ ] T042 [P] Build the coach-side "create client account" screen — email + provisional password, calls the `create-client-account` Edge Function (FR-022b) in `mobile/lib/features/coach_content/client_provisioning_screen.dart`
-- [ ] T043 [P] Build the coach-side invite-code generation screen/action in `mobile/lib/features/coach_content/invite_code_screen.dart` (FR-022a)
+- [X] T039 Build the login screen (email + password) in `mobile/lib/features/auth/login_screen.dart` (FR-019)
+- [X] T040 [P] Build the client signup screen — invite-code entry and redemption (FR-022a) in `mobile/lib/features/auth/signup_screen.dart`
+- [X] T041 [P] Build the forgot/reset-password screens in `mobile/lib/features/auth/reset_password_screen.dart` (FR-020)
+- [X] T042 [P] Build the coach-side "create client account" screen — email + provisional password, calls the `create-client-account` Edge Function (FR-022b) in `mobile/lib/features/coach_content/client_provisioning_screen.dart`
+- [X] T043 [P] Build the coach-side invite-code generation screen/action in `mobile/lib/features/coach_content/invite_code_screen.dart` (FR-022a)
 
 ### Routing, models, base repository
 
-- [ ] T044 Implement `go_router` with a role-based route guard (coach vs. client) in `mobile/lib/core/router/app_router.dart` (FR-010)
-- [ ] T045 [P] Define Dart data models for all entities in `mobile/lib/data/models/` (`coach.dart`, `client.dart`, `invite_code.dart`, `body_zone.dart`, `pain_sign.dart`, `exercise.dart`, `session.dart`, `daily_formula.dart`, `session_log.dart`)
-- [ ] T046 Implement the base repository abstraction (Supabase remote + local cache fallback) in `mobile/lib/data/repositories/base_repository.dart`
+- [X] T044 Implement `go_router` with a role-based route guard (coach vs. client) in `mobile/lib/core/router/app_router.dart` (FR-010)
+- [X] T045 [P] Define Dart data models for all entities in `mobile/lib/data/models/` (`coach.dart`, `client.dart`, `invite_code.dart`, `body_zone.dart`, `pain_sign.dart`, `exercise.dart`, `session.dart`, `daily_formula.dart`, `session_log.dart`)
+- [X] T046 Implement the base repository abstraction (Supabase remote + local cache fallback) in `mobile/lib/data/repositories/base_repository.dart`
 
 **Checkpoint**: Schema, RLS isolation, dual account provisioning, auth, shared UI states,
 theming (with working toggle), routing and offline cache are in place and tested. All
@@ -136,14 +136,14 @@ no selection step, and can complete it end to end.
 formula for today), open the app and verify a session is shown, can be played through to
 completion, and produces a `session_log` entry.
 
-- [ ] T047 [P] [US1] Integration test: daily-formula flow end-to-end, incl. zero-selection requirement and an SC-001 timing assertion (session start in < 10s), per quickstart Scenario 1, in `mobile/test/integration/daily_formula_flow_test.dart`
-- [ ] T048 [P] [US1] Widget test: home screen shows today's session without any selection step, in `mobile/test/widget/daily_formula_screen_test.dart`
-- [ ] T049 [US1] Implement `DailyFormulaRepository` (fetch today's daily formula + ordered session exercises, scoped to the client's coach) in `mobile/lib/data/repositories/daily_formula_repository.dart`
-- [ ] T050 [US1] Implement `SessionLogRepository.logCompletion` (writes `source_mode = 'daily_formula'`, offline-queued via T034) in `mobile/lib/data/repositories/session_log_repository.dart`
-- [ ] T051 [US1] Build the daily-formula home screen (auto-loads today's session, using the shared async-state widget from T030) in `mobile/lib/features/daily_formula/daily_formula_screen.dart`
-- [ ] T052 [US1] Build the session player screen (step through ordered exercises) in `mobile/lib/features/daily_formula/session_player_screen.dart`
-- [ ] T053 [US1] Build the session-completed confirmation view in `mobile/lib/features/daily_formula/session_complete_view.dart`
-- [ ] T054 [US1] Handle the "no daily formula for today" fallback/empty state (FR-015, edge case) in `mobile/lib/features/daily_formula/daily_formula_screen.dart`
+- [X] T047 [P] [US1] Integration test: daily-formula flow end-to-end, incl. zero-selection requirement and an SC-001 timing assertion (session start in < 10s), per quickstart Scenario 1, in `mobile/test/integration/daily_formula_flow_test.dart`
+- [X] T048 [P] [US1] Widget test: home screen shows today's session without any selection step, in `mobile/test/widget/daily_formula_screen_test.dart`
+- [X] T049 [US1] Implement `DailyFormulaRepository` (fetch today's daily formula + ordered session exercises, scoped to the client's coach) in `mobile/lib/data/repositories/daily_formula_repository.dart`
+- [X] T050 [US1] Implement `SessionLogRepository.logCompletion` (writes `source_mode = 'daily_formula'`, offline-queued via T034) in `mobile/lib/data/repositories/session_log_repository.dart`
+- [X] T051 [US1] Build the daily-formula home screen (auto-loads today's session, using the shared async-state widget from T030) in `mobile/lib/features/daily_formula/daily_formula_screen.dart`
+- [X] T052 [US1] Build the session player screen (step through ordered exercises) in `mobile/lib/features/daily_formula/session_player_screen.dart`
+- [X] T053 [US1] Build the session-completed confirmation view in `mobile/lib/features/daily_formula/session_complete_view.dart`
+- [X] T054 [US1] Handle the "no daily formula for today" fallback/empty state (FR-015, edge case) in `mobile/lib/features/daily_formula/daily_formula_screen.dart`
 
 **Checkpoint**: User Story 1 is independently functional and demoable as the MVP.
 
