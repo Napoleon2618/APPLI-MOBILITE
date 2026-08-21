@@ -1,0 +1,56 @@
+# Codemagic CI/CD config — builds an installable Android APK in the cloud,
+# no local Flutter/Docker install needed.
+#
+# NOTE: written without being able to fetch docs.codemagic.io directly from
+# this session (network policy blocked it), so the exact field names below
+# are based on Codemagic's documented YAML schema as of my training data,
+# not verified against their current live docs. If a build fails on an
+# unrecognized field, cross-check against https://docs.codemagic.io/yaml/yaml-getting-started/
+# or just recreate the workflow via Codemagic's guided "Flutter App" UI
+# instead (auto-detects this project, no YAML needed).
+#
+# Setup (once, in the Codemagic web UI):
+#   1. Sign up at codemagic.io (free, no credit card) and connect the
+#      napoleon2618/appli-mobilite GitHub repo.
+#   2. App settings → Environment variables → create a group named
+#      "supabase_credentials" with two variables:
+#        SUPABASE_URL       = <your project's URL, from Supabase dashboard>
+#        SUPABASE_ANON_KEY  = <your project's anon/publishable key>
+#   3. Start a build on the "android-apk" workflow below (or trigger via
+#      the branch/commit selector in the UI). The output .apk is available
+#      to download directly from the build's page — open that page on your
+#      phone's browser and tap it to install (Android: allow "install
+#      unknown apps" once for your browser).
+
+workflows:
+  android-apk:
+    name: Android APK (direct-install testing build)
+    max_build_duration: 30
+    instance_type: linux_x2
+    environment:
+      groups:
+        - supabase_credentials
+      flutter: stable
+    working_directory: mobile
+    scripts:
+      - name: Write .env from Codemagic secrets
+        script: |
+          echo "SUPABASE_URL=$SUPABASE_URL" > .env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+      - name: Get Flutter packages
+        script: flutter pub get
+      - name: Generate code (drift tables, env)
+        script: dart run build_runner build --delete-conflicting-outputs
+      - name: Build release APK
+        # Uses the project's default debug signing config (see
+        # android/app/build.gradle) — fine for installing on your own
+        # device to test; no keystore setup needed.
+        script: flutter build apk --release
+    artifacts:
+      - mobile/build/app/outputs/flutter-apk/*.apk
+
+  # iOS requires an Apple Developer Program membership ($99/year) for
+  # TestFlight or ad-hoc signing — add this workflow (with a mac_mini
+  # instance_type and code signing configured under Codemagic's iOS
+  # code signing settings) once/if you enroll. Not needed to test on
+  # Android.
