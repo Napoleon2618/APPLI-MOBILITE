@@ -34,18 +34,22 @@ begin
   loop
     execute format('alter table public.%I enable row level security', t);
 
+    execute format('drop policy if exists %I_select on public.%I', t, t);
     execute format(
       'create policy %I_select on public.%I for select to authenticated using (coach_id = public.my_coach_id())',
       t, t
     );
+    execute format('drop policy if exists %I_coach_insert on public.%I', t, t);
     execute format(
       'create policy %I_coach_insert on public.%I for insert to authenticated with check (coach_id = auth.uid())',
       t, t
     );
+    execute format('drop policy if exists %I_coach_update on public.%I', t, t);
     execute format(
       'create policy %I_coach_update on public.%I for update to authenticated using (coach_id = auth.uid()) with check (coach_id = auth.uid())',
       t, t
     );
+    execute format('drop policy if exists %I_coach_delete on public.%I', t, t);
     execute format(
       'create policy %I_coach_delete on public.%I for delete to authenticated using (coach_id = auth.uid())',
       t, t

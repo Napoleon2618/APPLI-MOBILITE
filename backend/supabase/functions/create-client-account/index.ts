@@ -12,7 +12,7 @@
 // See data-model.md ("Note — deux parcours de rattachement") and
 // contracts/auth.md for the full contract.
 
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface CreateClientAccountRequest {
   email?: string;

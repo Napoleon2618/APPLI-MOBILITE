@@ -2,6 +2,7 @@ alter table public.coach enable row level security;
 alter table public.client enable row level security;
 
 -- coach: a coach reads/updates their own row.
+drop policy if exists coach_select_self on public.coach;
 create policy coach_select_self on public.coach
   for select
   to authenticated
@@ -10,11 +11,13 @@ create policy coach_select_self on public.coach
 -- coach: a client reads the coach they are attached to (display_name etc.
 -- are not sensitive, so full-row read is granted rather than a
 -- column-restricted view, per Principle I — avoid unnecessary complexity).
+drop policy if exists coach_select_by_client on public.coach;
 create policy coach_select_by_client on public.coach
   for select
   to authenticated
   using (id = (select coach_id from public.client where id = auth.uid()));
 
+drop policy if exists coach_update_self on public.coach;
 create policy coach_update_self on public.coach
   for update
   to authenticated
@@ -22,17 +25,20 @@ create policy coach_update_self on public.coach
   with check (id = auth.uid());
 
 -- client: a client reads/updates their own row.
+drop policy if exists client_select_self on public.client;
 create policy client_select_self on public.client
   for select
   to authenticated
   using (id = auth.uid());
 
 -- client: a coach reads the clients attached to them.
+drop policy if exists client_select_by_coach on public.client;
 create policy client_select_by_coach on public.client
   for select
   to authenticated
   using (coach_id = auth.uid());
 
+drop policy if exists client_update_self on public.client;
 create policy client_update_self on public.client
   for update
   to authenticated
