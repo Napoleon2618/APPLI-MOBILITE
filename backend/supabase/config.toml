@@ -252,7 +252,7 @@ otp_expiry = 3600
 # reset-password screen (mobile/lib/features/auth/reset_password_screen.dart).
 [auth.email.template.recovery]
 subject = "Réinitialisez votre mot de passe"
-content_path = "./templates/recovery.html"
+content_path = "./supabase/templates/recovery.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
