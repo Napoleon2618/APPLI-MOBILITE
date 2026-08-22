@@ -11,7 +11,11 @@
 #
 # Setup (once, in the Codemagic web UI):
 #   1. Sign up at codemagic.io (free, no credit card) and connect the
-#      napoleon2618/appli-mobilite GitHub repo.
+#      napoleon2618/appli-mobilite GitHub repo. Leave the app's "Project
+#      path" setting BLANK / at the repo root — every script below already
+#      `cd mobile`s into the Flutter project itself, so setting a project
+#      path too would make Codemagic look for mobile/mobile and fail with
+#      "Directory was not found".
 #   2. App settings → Environment variables → create a group named
 #      "supabase_credentials" with two variables:
 #        SUPABASE_URL       = <your project's URL, from Supabase dashboard>
@@ -31,21 +35,21 @@ workflows:
       groups:
         - supabase_credentials
       flutter: stable
-    working_directory: mobile
     scripts:
       - name: Write .env from Codemagic secrets
         script: |
+          cd mobile
           echo "SUPABASE_URL=$SUPABASE_URL" > .env
           echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
       - name: Get Flutter packages
-        script: flutter pub get
+        script: cd mobile && flutter pub get
       - name: Generate code (drift tables, env)
-        script: dart run build_runner build --delete-conflicting-outputs
+        script: cd mobile && dart run build_runner build --delete-conflicting-outputs
       - name: Build release APK
         # Uses the project's default debug signing config (see
         # android/app/build.gradle) — fine for installing on your own
         # device to test; no keystore setup needed.
-        script: flutter build apk --release
+        script: cd mobile && flutter build apk --release
     artifacts:
       - mobile/build/app/outputs/flutter-apk/*.apk
 
