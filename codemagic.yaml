@@ -31,12 +31,20 @@
 # already resolves to a Flutter version that bundles a newer Dart than that
 # on Codemagic as of this writing; if a future build ever fails with an SDK
 # version error, pin an explicit Flutter version here instead of "stable".
+#
+# No `instance_type` is set below on purpose: an earlier pinned value
+# ("linux_x2") failed with "selected instance type is not available with
+# the current billing plan" on the free plan, and docs.codemagic.io isn't
+# reachable from the environment that authored this file to verify the
+# exact free-tier-eligible name. Omitting the field lets Codemagic pick a
+# default instance for the plan automatically. If you're on a paid plan and
+# want a specific (faster) instance, set it explicitly in the Codemagic UI
+# or here once you've confirmed the exact name in your account's plan page.
 
 workflows:
   android-apk:
     name: Android APK (direct-install testing build)
     max_build_duration: 30
-    instance_type: linux_x2
     environment:
       groups:
         - supabase_credentials
