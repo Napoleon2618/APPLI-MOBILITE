@@ -25,6 +25,12 @@
 #      to download directly from the build's page — open that page on your
 #      phone's browser and tap it to install (Android: allow "install
 #      unknown apps" once for your browser).
+#
+# mobile/pubspec.yaml now requires Dart >=3.10.0 (drift_dev/envied_generator
+# floor — see that file's `environment:` comment). `flutter: stable` below
+# already resolves to a Flutter version that bundles a newer Dart than that
+# on Codemagic as of this writing; if a future build ever fails with an SDK
+# version error, pin an explicit Flutter version here instead of "stable".
 
 workflows:
   android-apk:

@@ -19,7 +19,12 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.6.0
+  # drift_dev >=2.34.x and envied_generator >=1.3.x (below) transitively
+  # require Dart >=3.10.0 (their own analyzer/source_gen floors demand it —
+  # verified against pub.dev's published pubspec.yaml for each version).
+  # Stated explicitly here so an old SDK fails fast with a clear message
+  # instead of a deep transitive version-solving error.
+  sdk: ^3.10.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -62,7 +67,7 @@ dependencies:
   url_launcher: ^6.3.2
 
   # Environment configuration (Supabase URL/anon key — Principle V, never hardcoded)
-  envied: ^0.5.4+1
+  envied: ^1.3.8
 
 dev_dependencies:
   flutter_test:
@@ -77,9 +82,9 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
-  drift_dev: ^2.22.1
+  drift_dev: ^2.34.5
   build_runner: ^2.4.13
-  envied_generator: ^0.5.4+1
+  envied_generator: ^1.3.8
   mocktail: ^1.0.4
 
 # For information on the generic Dart part of this file, see the
